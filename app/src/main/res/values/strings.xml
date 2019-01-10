@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">Project4</string>
+    <string name="startAc_header">Project 4</string>
+    <string name="startAc_welcome">Log in or create \nan new user</string>
+    <string name="startAc_hintName">Enter username</string>
+    <string name="startAc_hintPass">Enter password</string>
+    <string name="startAc_buLogIn">Log in</string>
+    <string name="startAc_buReg">Register \nnew user</string>
+    <string name="reg_header">Enter username \nand password</string>
+    <string name="regAc_button">Register</string>
+    <string name="ui_text">Steps:</string>
+    <string name="ui_button">Reset steps</string>
+    <string name="ui_contentdesc">Kompass</string>
+    <string name="steps_per_second">Steps per second:</string>
+</resources>
