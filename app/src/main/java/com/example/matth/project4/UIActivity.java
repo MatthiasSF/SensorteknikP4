@@ -36,7 +36,7 @@ public class UIActivity extends AppCompatActivity {
     private float last_x = 0f;
     private float last_y = 0f;
     private float last_z = 0f;
-    private float shakeThreshold = 5f;
+    private float shakeThreshold = 1f;
     private int steps = 0;
     private TextView stepTV;
     private String userName;
@@ -84,6 +84,7 @@ public class UIActivity extends AppCompatActivity {
         }
     }
     private void compassAnimator(@NonNull SensorEvent event){
+
         if (event.sensor == accelerometerSensor) {
             System.arraycopy(event.values, 0, lastAccelerometer, 0,event.values.length);
             lastAccelerometerSet = true;
@@ -92,7 +93,6 @@ public class UIActivity extends AppCompatActivity {
             lastMagnetometerSet = true;
         }
         if (lastAccelerometerSet && lastMagnetometerSet) {
-
             SensorManager.getRotationMatrix(rotationMatrix, null,lastAccelerometer, lastMagnetometer);
             SensorManager.getOrientation(rotationMatrix, orientation);
             float azimuthInRadians = orientation[0];
@@ -104,8 +104,8 @@ public class UIActivity extends AppCompatActivity {
             rotateAnimation.setFillAfter(true);
             compass.startAnimation(rotateAnimation);
             currentDegree = -azimuthInDegrees;
+            lastAccelerometerSet = false;
         }
-        lastAccelerometerSet = false;
     }
     private void updateStepView(int steps){
         stepTV.setText(R.string.ui_text + steps);
