@@ -1,8 +1,6 @@
 package com.example.matth.project4;
 
 import android.content.Context;
-import android.util.Log;
-
 import com.example.matth.project4.Database.Step_history;
 import com.example.matth.project4.Database.User_table;
 
@@ -17,7 +15,6 @@ public class Controller {
     private String userName;
     private String password;
     private static Controller instance;
-    private int steps = 0;
     private UIActivity uiActivity;
 
     /**

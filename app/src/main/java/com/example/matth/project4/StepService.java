@@ -12,12 +12,7 @@ import android.os.Build;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
-import android.util.Log;
-import android.widget.Toast;
-
-import com.example.matth.project4.Database.Step_history;
 import com.example.matth.project4.Database.User_table;
-
 import java.util.Calendar;
 
 public class StepService extends Service implements SensorEventListener {
@@ -29,12 +24,8 @@ public class StepService extends Service implements SensorEventListener {
     private boolean isAccelerometerPresent;
     private Sensor stepDetectorSensor;
     private boolean isStepDetectorPresent;
-    private User_table user;
-    private double movement;
     private String username;
-    private long lastTime;
     private int steps;
-    private UIActivity uiActivity;
 
     @Override
     public void onCreate() {
@@ -74,7 +65,6 @@ public class StepService extends Service implements SensorEventListener {
 
     @Override
     public boolean onUnbind(Intent intent) {
-        // If StepService needs to be unbound.
         return super.onUnbind(intent);
     }
 
@@ -90,9 +80,7 @@ public class StepService extends Service implements SensorEventListener {
     }
 
     @Override
-    public void onAccuracyChanged(Sensor sensor, int i) {
-
-    }
+    public void onAccuracyChanged(Sensor sensor, int i) {}
 
     public class LocalBinder extends Binder {
         StepService getService() {

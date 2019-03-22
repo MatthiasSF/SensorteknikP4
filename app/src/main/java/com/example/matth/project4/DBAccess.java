@@ -2,13 +2,10 @@ package com.example.matth.project4;
 
 import android.arch.persistence.room.Room;
 import android.content.Context;
-
 import com.example.matth.project4.Database.DatabaseAccess;
 import com.example.matth.project4.Database.P4_Database;
 import com.example.matth.project4.Database.Step_history;
 import com.example.matth.project4.Database.User_table;
-
-import java.util.LinkedList;
 
 /**
  * Class that uses the interface DatabaseAccess for communicating with the database
