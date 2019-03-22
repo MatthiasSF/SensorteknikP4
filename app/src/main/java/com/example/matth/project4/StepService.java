@@ -12,7 +12,7 @@ import android.os.Build;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
-import com.example.matth.project4.Database.User_table;
+import android.widget.Toast;
 import java.util.Calendar;
 
 public class StepService extends Service implements SensorEventListener {
@@ -47,12 +47,14 @@ public class StepService extends Service implements SensorEventListener {
     public int onStartCommand(Intent intent, int flags, int startId) {
         username = controller.getUserName();
         steps = 0;
+        Toast.makeText(this, "The service was started",Toast.LENGTH_LONG).show();
         return Service.START_NOT_STICKY;
     }
 
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
+        Toast.makeText(this, "The service was binded",Toast.LENGTH_LONG).show();
         return binder;
     }
 
@@ -60,11 +62,13 @@ public class StepService extends Service implements SensorEventListener {
     public boolean stopService(Intent name) {
         if (isStepDetectorPresent) sensorManager.unregisterListener(this, stepDetectorSensor);
         if (isAccelerometerPresent) sensorManager.unregisterListener(this, accelerometerSensor);
+        Toast.makeText(this, "The service was stopped",Toast.LENGTH_LONG).show();
         return super.stopService(name);
     }
 
     @Override
     public boolean onUnbind(Intent intent) {
+        Toast.makeText(this, "The service was unbinded",Toast.LENGTH_LONG).show();
         return super.onUnbind(intent);
     }
 

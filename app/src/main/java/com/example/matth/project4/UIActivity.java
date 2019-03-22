@@ -117,7 +117,6 @@ public class UIActivity extends AppCompatActivity {
         }
     }
     private void compassAnimator(@NonNull float angleInDegrees){
-
         RotateAnimation rotateAnimation = new RotateAnimation(currentDegree, - angleInDegrees,
                 Animation.RELATIVE_TO_SELF,0.5f,
                 Animation.RELATIVE_TO_SELF,0.5f);
