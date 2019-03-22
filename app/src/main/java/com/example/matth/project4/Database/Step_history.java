@@ -22,9 +22,9 @@ public class Step_history {
     private int steps;
 
     @ColumnInfo (name = "Timestamp")
-    private int timestamp;
+    private long timestamp;
 
-    public Step_history (String userName, int steps, int timestamp){
+    public Step_history (String userName, int steps, long timestamp){
         this.userName = userName;
         this.steps = steps;
         this.timestamp = timestamp;
@@ -35,10 +35,10 @@ public class Step_history {
     public void setSteps(int steps){
         this.steps = steps;
     }
-    public int getTimestamp(int userName) {
+    public long getTimestamp(int userName) {
         return timestamp;
     }
-    public void setTimestamp(int timestamp) {
+    public void setTimestamp(long timestamp) {
         this.timestamp = timestamp;
     }
     public void setUserName(@NonNull String userName) {
@@ -50,8 +50,7 @@ public class Step_history {
     public int getSteps() {
         return steps;
     }
-
-    public int getTimestamp() {
+    public long getTimestamp() {
         return timestamp;
     }
 

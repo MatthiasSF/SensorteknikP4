@@ -1,5 +1,6 @@
 package com.example.matth.project4;
 
+import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -7,13 +8,18 @@ import android.hardware.SensorManager;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.concurrent.TimeUnit;
 
 public class UIActivity extends AppCompatActivity {
     private SensorManager sensorManager;
@@ -24,26 +30,20 @@ public class UIActivity extends AppCompatActivity {
     private SensorListener sensorListener;
     private boolean lastAccelerometerSet = false;
     private boolean lastMagnetometerSet = false;
-    private boolean isFirstValue = false;
     private float[] rotationMatrix = new float[9];
     private float[] orientation =  new float[3];
     private float[] lastAccelerometer = new float[3];
     private float[] lastMagnetometer = new float[3];
     private float currentDegree = 0f;
-    private float x = 0f;
-    private float y = 0f;
-    private float z = 0f;
-    private float last_x = 0f;
-    private float last_y = 0f;
-    private float last_z = 0f;
-    private float shakeThreshold = 1f;
-    private int steps = 0;
+    private float lastDegree = 0f;
+    private long lastTime = 0;
+    private long stepStartTime = 0;
     private TextView stepTV;
+    private TextView nmbrOfStepsTv;
     private String userName;
     private Controller controller;
     private TextView stepsPerSecondTV;
-    private double stepsPerSecond;
-    private ArrayList<Double> times = new ArrayList<Double>();
+    private Button resetButton;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,10 +57,46 @@ public class UIActivity extends AppCompatActivity {
         compass = findViewById(R.id.ui_image);
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         stepTV = findViewById(R.id.ui_steps);
-        stepsPerSecondTV = findViewById(R.id.ui_stepsPerSecondTV);
+        nmbrOfStepsTv = findViewById(R.id.nmbrOfStepsTv);
+        stepsPerSecondTV = findViewById(R.id.stepsPerSecondTV);
+        resetButton = findViewById(R.id.ui_button);
+        resetButton.setOnClickListener(new ButtonListener());
         userName = getIntent().getStringExtra("Username");
-        getStepHistory();
+        controller.setUserName(userName);
         setSensors();
+        this.startService(new Intent(this, StepService.class));
+        stepStartTime = Calendar.getInstance().getTimeInMillis();
+    }
+    public void setStepsTV(int steps){
+        final String s = steps +"";
+        setStepsPerSecond(steps);
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                nmbrOfStepsTv.setText(s);
+
+            }
+        });
+
+    }
+    private void setStepsPerSecond(int steps){
+        long startTime = TimeUnit.MILLISECONDS.toSeconds(stepStartTime);
+        long endTime = TimeUnit.MILLISECONDS.toSeconds(controller.getStepTimestamp());
+        double persec = (double) endTime - startTime;
+        persec = (double)steps / persec;
+        final String ps = String.format("%.1f",persec);
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                stepsPerSecondTV.setText(ps);
+            }
+        });
+    }
+    private void restart(){
+        this.startService(new Intent(this, StepService.class));
+        stepStartTime = Calendar.getInstance().getTimeInMillis();
+        stepsPerSecondTV.setText(0 + "");
+        nmbrOfStepsTv.setText(0 + "");
     }
     private void setSensors() {
         if (sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) != null) {
@@ -83,94 +119,69 @@ public class UIActivity extends AppCompatActivity {
             Toast.makeText(this, "Your device is missing the magnetometer sensor", Toast.LENGTH_LONG).show();
         }
     }
-    private void compassAnimator(@NonNull SensorEvent event){
+    private void compassAnimator(@NonNull float angleInDegrees){
 
-        if (event.sensor == accelerometerSensor) {
-            System.arraycopy(event.values, 0, lastAccelerometer, 0,event.values.length);
-            lastAccelerometerSet = true;
-        } else if (event.sensor == magnetometerSensor) {
-            System.arraycopy(event.values, 0, lastMagnetometer, 0,event.values.length);
-            lastMagnetometerSet = true;
-        }
-        if (lastAccelerometerSet && lastMagnetometerSet) {
-            SensorManager.getRotationMatrix(rotationMatrix, null,lastAccelerometer, lastMagnetometer);
-            SensorManager.getOrientation(rotationMatrix, orientation);
-            float azimuthInRadians = orientation[0];
-            float azimuthInDegrees = (float)(Math.toDegrees(azimuthInRadians) + 360) % 360;
-            RotateAnimation rotateAnimation =
-                    new RotateAnimation(currentDegree, -azimuthInDegrees,Animation.RELATIVE_TO_SELF,
-                            0.5f,Animation.RELATIVE_TO_SELF, 0.5f);
-            rotateAnimation.setDuration(5000);
-            rotateAnimation.setFillAfter(true);
-            compass.startAnimation(rotateAnimation);
-            currentDegree = -azimuthInDegrees;
-            lastAccelerometerSet = false;
-        }
-    }
-    private void updateStepView(int steps){
-        stepTV.setText(R.string.ui_text + steps);
-    }
-    private void getStepHistory(){
-        steps = controller.getSteps(userName);
-        updateStepView(steps);
-    }
-    private void saveStepHistory(int steps){
-        controller.setSteps(steps, userName);
-    }
-    private void updateStepsPerSecondView(double stepsPerSecond){
-        stepsPerSecondTV.setText(R.string.steps_per_second + String.valueOf(stepsPerSecond));
-    }
-    private void calculateStepsPerSecond(){
-
+        RotateAnimation rotateAnimation = new RotateAnimation(currentDegree, - angleInDegrees,
+                Animation.RELATIVE_TO_SELF,0.5f,
+                Animation.RELATIVE_TO_SELF,0.5f);
+        rotateAnimation.setDuration(250);
+        rotateAnimation.setFillAfter(true);
+        compass.startAnimation(rotateAnimation);
+        lastDegree = currentDegree;
+        currentDegree =  - angleInDegrees;
     }
     private class SensorListener implements SensorEventListener{
         @Override
         public void onSensorChanged(SensorEvent event) {
-            if (event.sensor == accelerometerSensor){
-                x = event.values[0];
-                y = event.values[1];
-                z = event.values[2];
-                if (isFirstValue){
-                    float deltaX = Math.abs(last_x - x);
-                    float deltaY = Math.abs(last_y - y);
-                    float deltaZ = Math.abs(last_z - z);
-                    if ((deltaX > shakeThreshold && deltaY > shakeThreshold)
-                            || (deltaX > shakeThreshold && deltaZ > shakeThreshold)
-                            || (deltaY > shakeThreshold && deltaZ > shakeThreshold)){
-                        compassAnimator(event);
-                    }
+            long currentTime = System.currentTimeMillis();
+            if (event.sensor == accelerometerSensor) {
+                lastAccelerometer = event.values;
+                lastAccelerometerSet = true;
+                float x = event.values[0];
+                float y = event.values[1];
+                float z = event.values[2];
+                double total = Math.sqrt(x*x + y*y + z*z);
+                if (total > 20){
+                    compassAnimator( currentDegree + 360f);
+                    compassAnimator(currentDegree - 360f);
                 }
-                last_x = x;
-                last_y = y;
-                last_z = z;
-                isFirstValue = true;
             }
             if (event.sensor == magnetometerSensor){
-                compassAnimator(event);
+                lastMagnetometer = event.values;
+                lastMagnetometerSet = true;
             }
-            if (event.sensor == stepSensor){
-                steps ++;
-                updateStepView(steps);
-                double time = System.currentTimeMillis()/100;
-                times.add(time);
-                calculateStepsPerSecond();
+            if (lastAccelerometerSet && lastMagnetometerSet && currentTime - lastTime >= 250) {
+                rotationMatrix = new float[9];
+                SensorManager.getRotationMatrix(rotationMatrix, null, lastAccelerometer, lastMagnetometer);
+                orientation = new float[3];
+                SensorManager.getOrientation(rotationMatrix, orientation);
+                float azimuthInRadians = orientation[0];
+                float azimuthInDegrees = (float) ((Math.toDegrees(azimuthInRadians) + 360) % 360);
+                compassAnimator(azimuthInDegrees);
+                lastTime = currentTime;
             }
         }
 
         @Override
         public void onAccuracyChanged(Sensor sensor, int accuracy) {}
     }
+    private class ButtonListener implements View.OnClickListener{
+
+        @Override
+        public void onClick(View view) {
+            controller.deleteSteps();
+            restart();
+        }
+    }
     protected void onPause() {
         super.onPause();
         sensorManager.unregisterListener(sensorListener, accelerometerSensor);
         sensorManager.unregisterListener(sensorListener, magnetometerSensor);
-        saveStepHistory(steps);
     }
     protected void onDestroy() {
         super.onDestroy();
         sensorManager.unregisterListener(sensorListener, accelerometerSensor);
         sensorManager.unregisterListener(sensorListener, magnetometerSensor);
-        saveStepHistory(steps);
     }
     protected void onResume(){
         super.onResume();

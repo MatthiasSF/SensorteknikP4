@@ -2,15 +2,15 @@ package com.example.matth.project4;
 
 public class ToDo {
     /**
-     * ● Display a compass pointing north.
+    V * ● Display a compass pointing north.
     V * ● Display:
     V * o The amount of steps taken by the user since the listener was registered.
-     * o The number of steps per second.
-     * o A button to reset the step counting and history.
+    V * o The number of steps per second.
+    V * o A button to reset the step counting and history.
     V * ● When it detects a shake, apply a random rotation animation to the compass.
     V * o The compass should always point north after the animation finishes.
     V * o Check “android.view.animation” for help.
-     * ● Create a Service that will be in charge of registering the user’s walking information:
+    V * ● Create a Service that will be in charge of registering the user’s walking information:
     V * o Record the step history into a database.
      * o Notify the user when the service is started, bound, unbound, and stopped.
      V * ● Require the user to log in before using the app using a “user + password” combination. Store the

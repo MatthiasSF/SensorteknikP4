@@ -48,12 +48,12 @@ public class DBAccess implements DatabaseAccess {
     }
 
     @Override
-    public void insertTimestamp(int timestamp, String userName) {
+    public void insertTimestamp(long timestamp, String userName) {
         p4Access.insertTimestamp(timestamp, userName);
     }
 
     @Override
-    public int getTimestamp(String userName) {
+    public long getTimestamp(String userName) {
         return p4Access.getTimestamp(userName);
     }
 
@@ -65,5 +65,10 @@ public class DBAccess implements DatabaseAccess {
     @Override
     public String[] usernames() {
         return p4Access.usernames();
+    }
+
+    @Override
+    public void deleteAllSteps(String userName) {
+
     }
 }

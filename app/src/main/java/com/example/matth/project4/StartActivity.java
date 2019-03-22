@@ -108,7 +108,7 @@ public class StartActivity extends AppCompatActivity {
                         }
                     }
                 }else{
-                    Toast.makeText(context, "Username doesn't exist", Toast.LENGTH_LONG).show();
+                    Toast.makeText(context, "You have to register an user first", Toast.LENGTH_LONG).show();
                 }
 
             }

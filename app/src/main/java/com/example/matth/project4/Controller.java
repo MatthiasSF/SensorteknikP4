@@ -1,6 +1,7 @@
 package com.example.matth.project4;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.example.matth.project4.Database.Step_history;
 import com.example.matth.project4.Database.User_table;
@@ -12,8 +13,12 @@ import com.example.matth.project4.Database.User_table;
 public class Controller {
     private DBAccess dbAccess;
     private Thread t;
-    private String[] usernames;
+    private String[] userNames;
+    private String userName;
     private String password;
+    private static Controller instance;
+    private int steps = 0;
+    private UIActivity uiActivity;
 
     /**
      * Constructor fro the class
@@ -22,7 +27,11 @@ public class Controller {
     public Controller(Context context){
         this.dbAccess = new DBAccess(context);
     }
-
+    public Controller(UIActivity uiActivity){
+        this.dbAccess = new DBAccess(uiActivity);
+        this.uiActivity = uiActivity;
+        instance = this;
+    }
     /**
      * Gets the password for username set in the parameter
      * @param username - the username
@@ -43,6 +52,12 @@ public class Controller {
         System.out.println(password);
         return password;
     }
+    public static Controller getInstance(Context context){
+        if (instance == null){
+            instance = new Controller(context);
+        }
+        return instance;
+    }
 
     /**
      * @return all of the usernames saved in the database
@@ -50,7 +65,7 @@ public class Controller {
     public String[] getUsernames(){
         t = new Thread(new Runnable() {
             public void run() {
-                usernames = dbAccess.usernames();
+                userNames = dbAccess.usernames();
             }
         });
         t.start();
@@ -59,7 +74,13 @@ public class Controller {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        return usernames;
+        return userNames;
+    }
+    public void setUserName(String userName){
+        this.userName = userName;
+    }
+    public String getUserName(){
+        return this.userName;
     }
 
     /**
@@ -94,6 +115,7 @@ public class Controller {
         t = new Thread(new Runnable() {
             public void run() {
                 steps[0] = dbAccess.getSteps(userName);
+                uiActivity.setStepsTV(steps[0]);
             }
         });
         t.start();
@@ -114,6 +136,48 @@ public class Controller {
         t = new Thread(new Runnable() {
             public void run() {
                 dbAccess.insertStep(steps, userName);
+                getSteps(userName);
+            }
+        });
+        t.start();
+        try{
+            t.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+    public long getStepTimestamp(){
+        final long timestamp[] = new long[1];
+        t = new Thread(new Runnable() {
+            public void run() {
+                timestamp[0] = dbAccess.getTimestamp(userName);
+            }
+        });
+        t.start();
+        try{
+            t.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return timestamp[0];
+    }
+    public void setTimeStamp(final long stamp){
+        t = new Thread(new Runnable() {
+            public void run() {
+                dbAccess.insertTimestamp(stamp, userName);
+            }
+        });
+        t.start();
+        try{
+            t.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+    public void deleteSteps(){
+        t = new Thread(new Runnable() {
+            public void run() {
+                dbAccess.deleteAllSteps(userName);
             }
         });
         t.start();

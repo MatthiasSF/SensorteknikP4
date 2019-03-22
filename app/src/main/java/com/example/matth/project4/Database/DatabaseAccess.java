@@ -25,10 +25,10 @@ public interface DatabaseAccess {
     void insertStep (int step, String userName);
 
     @Query("UPDATE Step_history_table set Timestamp = :timestamp where Username = :userName")
-    void insertTimestamp (int timestamp, String userName);
+    void insertTimestamp (long timestamp, String userName);
 
     @Query("SELECT Timestamp FROM step_history_table where Username = :userName")
-    int getTimestamp(String userName);
+    long getTimestamp(String userName);
 
     @Query("SELECT Steps FROM step_history_table where Username = :userName")
     int getSteps(String userName);
@@ -36,4 +36,6 @@ public interface DatabaseAccess {
     @Query("SELECT Username FROM user_table")
     String[] usernames();
 
+    @Query("DELETE FROM step_history_table where Username = :userName")
+    void deleteAllSteps(String userName);
 }

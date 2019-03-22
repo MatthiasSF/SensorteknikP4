@@ -16,8 +16,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <service android:name="com.example.matth.project4.StepService" />
         <activity android:name=".RegisterActivity" />
         <activity android:name=".UIActivity"></activity>
+
     </application>
+
 
 </manifest>
